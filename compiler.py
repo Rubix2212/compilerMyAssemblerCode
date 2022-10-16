@@ -1,4 +1,3 @@
-from traceback import print_tb
 import os
 import numpy as np
 
@@ -30,27 +29,32 @@ registers = {
 
 def transform(type, r1, r2, counter):
 	if type == 0:
+		if registers.get(r1) == None:
+			print(f"Register in line {counter} it's wrong: {r1}")
+			return
+
+		elif registers.get(r2) == None:
+			print(f"Register in line {counter} it's wrong: {r2}")
+			return
+
 		r1 = registers.get(r1)
 		r2 = registers.get(r2)
 		
-		if r1 == None:
-			print(f"First in line {counter} it's wrong")
-		elif r2 == None:
-			print(f"Second in line {counter} it's wrong")
-
+		
 	if type == 1:
 		pass
 
 
 os.system("cls")
 file = input("Enter name's file: ")
+os.system("cls")
 
 try:
 	asmcode = open(file, "r")
 	
 
 except:
-	print("No se encontro archivo");
+	print("No file found");
 	os.system("pause")
 	os.system("cls")
 	exit(0)
@@ -58,6 +62,7 @@ except:
 i = 0
 
 
+#code iterator
 while (True):
 	linea = asmcode.readline()
 	i += 1;
@@ -66,26 +71,15 @@ while (True):
 	if not linea:
 		break
 	
-	address = []
+
 	
-	# fetch tag
-	if linea[0].find(':') != -1:
-		address.insert(i, i)
-	else:
-		address.insert(i, None)
-
-
 	opcode = opcodes.get(linea[0])
 	
 	typeInst = -1
 	reg1 = ""
 	reg2 = ""
 
-	if opcode == None:
-		print(f"Syntax error in line: {i} you put: {linea[0]}")
-		exit(0)
-	
-	elif opcode == 0:
+	if opcode == 0:
 		# binaryInst = "0x00"
 		typeInst = -1
 		reg1 = "A"
@@ -99,6 +93,23 @@ while (True):
 	elif opcode >= 5 and opcode <= 7:
 		typeInst = 1
 
-	transform(typeInst, reg1, reg2, i)	
+	elif opcode == None:
+		print(f"Syntax error in line: {i} you put: {linea[0]}")
+		exit(0)
 	
-print(address)
+	transform(typeInst, reg1, reg2, i)	
+
+os.system("pause")
+os.system("cls")
+
+i = 0
+asmcode = open(file, "r")
+print("Codigo: ")
+
+while (True):
+	linea = asmcode.readline()
+
+	if not linea:
+		break
+	print(f"{i}: {linea}")
+	i += 1;
