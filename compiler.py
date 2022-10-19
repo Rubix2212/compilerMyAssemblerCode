@@ -3,22 +3,22 @@ import numpy as np
 
 
 opcodes = {
-	"NOP": 0x0,
-	"ADD": 0x1,
-	"SUB": 0x2,
-	"AND": 0x3,
-	"OR": 0x4,
-	"JMP": 0x5,
-	"JEQ": 0x6,
-	"JNE": 0x7,
-	"SD": 0x8,
-	"LD": 0x9,
-	"LI": 0xA,
-	"MV": 0xB,
-	"JAL": 0xC,
-	"RET": 0xD,
-	"JLT": 0xE,
-	"JGT": 0xF
+	"NOP": 0,
+	"ADD": 1,
+	"SUB": 2,
+	"AND": 3,
+	"OR": 4,
+	"JMP": 5,
+	"JEQ": 6,
+	"JNE": 7,
+	"SD": 8,
+	"LD": 9,
+	"LI": 10,
+	"MV": 11,
+	"JAL": 12,
+	"RET": 13,
+	"JLT": 14,
+	"JGT": 15
 }
 
 registers = {
@@ -115,10 +115,12 @@ def compile(type, r1, r2, imm, counter, opcode, fileCompile):
 		r1 = r1.zfill(2)
 		r2 = bin(r2).replace('0b', '')
 		r2 = r2.zfill(2)
+		counter = bin(counter).replace('0b', '')
+		counter = counter.zfill(8)
 		printed = (opcode + " " + r1 + r2)
-		# print(f"PC = {hex(counter)} (\n  Binary = {printed}\n  Hexadecimal = {hexPrinted}\n);\n")
 		
-		fileCompile.write(f"[{hex(counter)}] {printed}\n")
+		
+		fileCompile.write(f"{counter} {printed}\n")
 		
 	elif type == "Data":
 		if registers.get(r1) == None:
@@ -144,18 +146,22 @@ def compile(type, r1, r2, imm, counter, opcode, fileCompile):
 
 		imm = bin(int (imm)).replace('0b', '')
 		imm = imm.zfill(2)
+		counter = bin(counter).replace('0b', '')
+		counter = counter.zfill(8)
 
 		printed = (opcode + " " + r1 + imm)
-		fileCompile.write(f"[{hex(counter)}] {printed}\n")
+		fileCompile.write(f"{counter} {printed}\n")
 
 	
 	elif type == -1:
-		fileCompile.write(f"[{hex(counter)}] 0000 0000\n")
+		counter = bin(counter).replace('0b', '')
+		counter = counter.zfill(8)
+		fileCompile.write(f"{counter} 0000 0000\n")
 
 
 def __main__():
 	os.system("cls")
-	option = int(input("COMPILER\nEnter mode\n1. Compile\n2. Show code in binary/hexadecimal\nOption: "))
+	option = int(input("\t\tCOMPILER\nEnter mode\n1. Show code in binary/hexadecimal \n2. Compile\nOption: "))
 	# Enter file name
 	os.system("cls")
 	file = input("Enter name's file: ")
@@ -176,9 +182,13 @@ def __main__():
 			# catch instruction
 			linea = asmcode.readline()
 			linea = linea.upper()
-			i += 1;
 			linea = linea.split()
 
+			if not(str(linea).find(":") == -1):
+				continue
+		
+			i += 1;
+			
 			if not linea:
 				break
 			
@@ -218,22 +228,25 @@ def __main__():
 				exit(0)
 
 			transform(typeInst, reg1, reg2, imm, i, opcode)	
-		print("Compiled successfully completed!")
 		os.system("pause")
 		os.system("cls")
 	
 	elif option == 2:
 		os.system("cls")
-		comp = open(file + "compiled.asm", 'w')
+		comp = open(file.replace(".s", ".txt"), 'w')
 		i = 0
 		#code iterator
 		while (True):
 			# catch instruction
 			linea = asmcode.readline()
 			linea = linea.upper()
-			i += 1;
 			linea = linea.split()
 
+			if not(str(linea).find(":") == -1):
+				continue
+			
+			i += 1;
+			
 			if not linea:
 				break
 			

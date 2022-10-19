@@ -1,8 +1,9 @@
-NOP
-ADD $0, $0
-SUB c, d
-or $0, $1
-LI $0, 3
-mv b, a
-ld a, b
-sd c, d
+main:
+loop:
+asd:
+LI A, 3
+LI B, 3
+ADD $0, $1
+juju:
+MV D, A
+LI D, 3
