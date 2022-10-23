@@ -1,297 +1,127 @@
-import os
-import numpy as np
-
+from os import system
 
 opcodes = {
-	"NOP": 0,
-	"ADD": 1,
-	"SUB": 2,
-	"AND": 3,
-	"OR": 4,
+	"ADD": 0,
+	"SUB": 0,
+	"MUL": 0,
+	"DIV": 0,
+	"AND": 0,
+	"OR": 0,
+	"XOR": 0,
+	"NAND": 0,
+	"LD": 1,
+	"SD": 2,
+	"RET": 3,
+	"ADDC": 4,
 	"JMP": 5,
 	"JEQ": 6,
 	"JNE": 7,
-	"SD": 8,
-	"LD": 9,
-	"LI": 10,
-	"MV": 11,
-	"JAL": 12,
-	"RET": 13,
-	"JLT": 14,
-	"JGT": 15
+	"JLT": 8,
+	"JGT": 9,
+	"JAL": 10,
+	"SYSCALL": 11
 }
 
-registers = {
-	'A': 0,
-	'B': 1,
-	'C': 2,
-	'D': 3,
-	'$0': 0,
-	'$1': 1,
-	'$2': 2,
-	'$3': 3
+registros = {
+	"ZERO": 0,
+	"R0": 0,
+	"R1": 1,
+	"R2": 2,
+	"R3": 3,
+	"R4": 4,
+	"R5": 5,
+	"R6": 6,
+	"R7": 7
 }
 
+functs = {
+	"ADD": 0,
+	"SUB": 1,
+	"MUL": 2,
+	"DIV": 3,
+	"AND": 4,
+	"OR": 5,
+	"XOR": 6,
+	"NAND": 7
+}
 
-def transform(type, r1, r2, imm, counter, opcode):
-	if type == "Operation":
-		if registers.get(r1) == None:
-			print(f"Register in line {counter} it's wrong: {r1}")
-			return
-
-		elif registers.get(r2) == None:
-			print(f"Register in line {counter} it's wrong: {r2}")
-			return
-
-		r1 = registers.get(r1)
-		r2 = registers.get(r2)
-
-		# print
-		opcode = bin(opcode).replace('0b', '')
-		opcode = opcode.zfill(4)
-
-		r1 = bin(r1).replace('0b', '')
-		r1 = r1.zfill(2)
-		r2 = bin(r2).replace('0b', '')
-		r2 = r2.zfill(2)
-		printed = (opcode + " " + r1 + r2)
-		hexPrinted = hex(int(opcode + r1 + r2, 2))
-		print(f"PC = {hex(counter)} (\n  Binary = {printed}\n  Hexadecimal = {hexPrinted}\n);\n")
-		
-	elif type == "Data":
-		if registers.get(r1) == None:
-			print(f"Register in line {counter} it's wrong: {r1}")
-			return
-
-		elif registers.get(r2) == None:
-			print(f"Register in line {counter} it's wrong: {r2}")
-			return
-
+def printcode(linea, counter, compiled):
 	
-	elif type == "Operation-Data":
-		if registers.get(r1) == None:
-			print(f"Register in line {counter} it's wrong: {r1}")
-			return
+	opcode = opcodes.get(linea[0])
+	if opcode == 0:
+		opcode = str(bin(opcode)).replace("0b", '').zfill(4)
+		rd = str(linea[1]).replace(",", '')
+		r1 = str(linea[2]).replace(",", '')
+		r2 = str(linea[3]).replace(",", '')
+		rd = str(bin(registros.get(rd))).replace("0b", '').zfill(3)
+		r1 = str(bin(registros.get(r1))).replace("0b", '').zfill(3)
+		r2 = str(bin(registros.get(r2))).replace("0b", '').zfill(3)
+		funct = str(bin(functs.get(linea[0]))).replace("0b", '').zfill(3)
+		counter = hex(counter).replace("0x", '').zfill(2)
+		hexinst = str(hex(int(opcode + r1 + r2 + rd + funct, 2))).replace("0x", '').zfill(4)
+		linea = str(linea).replace("[", '').replace("]", '').replace(",", '').replace("'", '')
+		compiled.write(f"[0x{counter}] {opcode}{r1}{r2}{rd}{funct} => 0x{hexinst} # {str(linea)}\n")
 
-		r1 = registers.get(r1)
-		opcode = bin(opcode).replace('0b', '')
-		opcode = opcode.zfill(4)
-
-		r1 = bin(r1).replace('0b', '')
-		r1 = r1.zfill(2)
-
-		imm = bin(int (imm)).replace('0b', '')
-		imm = imm.zfill(2)
-
-		printed = (opcode + " " + r1 + imm)
-		hexPrinted = hex(int(opcode + r1 + imm, 2))
-		print(f"PC = {hex(counter)} (\n  Binary = {printed}\n  Hexadecimal = {hexPrinted}\n);\n")
-
+	elif opcode == 5 or opcode == 10:
+		opcode = str(bin(opcode)).replace("0b", '').zfill(4)
+		address = str(bin(int(linea[1]))).replace("0b", '').zfill(12)
+		hexinst = str(hex(int(opcode + address, 2))).replace("0x", '').zfill(4)
+		counter = hex(counter).replace("0x", '').zfill(2)
+		linea = str(linea).replace("[", '').replace("]", '').replace(",", '').replace("'", '')	
+		compiled.write(f"[0x{counter}] {opcode}{address} => 0x{hexinst} # {str(linea)}\n")
 	
-	elif type == -1:
-		print(f"PC = {hex(counter)} (\n  Binary = 0000 0000\n  Hexadecimal = 0x00\n);\n")
+	elif opcode == 3:
+		opcode = str(bin(opcode)).replace("0b", '').zfill(4)
+		rem = "000000000000"
+		hexinst = str(hex(int(opcode + rem, 2))).replace("0x", '').zfill(4)
+		counter = hex(counter).replace("0x", '').zfill(2)
+		linea = str(linea).replace("[", '').replace("]", '').replace(",", '').replace("'", '')	
+		compiled.write(f"[0x{counter}] {opcode}{rem} => 0x{hexinst} # {str(linea)}\n")
 
-	os.system("pause")
-	os.system("cls")
+	elif opcode == 4 or opcode >= 6 or opcode <= 9:
+		opcode = str(bin(opcode)).replace("0b", '').zfill(4)
+		rd = str(linea[1]).replace(",", '')
+		r1 = str(linea[2]).replace(",", '')
+		imm = str(linea[3]).replace(",", '')
+		rd = str(bin(registros.get(rd))).replace("0b", '').zfill(3)
+		r1 = str(bin(registros.get(r1))).replace("0b", '').zfill(3)
+		imm = str(bin(int(imm))).replace("0b", '').zfill(6)
+		counter = hex(counter).replace("0x", '').zfill(2)
+		hexinst = str(hex(int(opcode + r1 + rd + imm, 2))).replace("0x", '').zfill(4)
+		linea = str(linea).replace("[", '').replace("]", '').replace(",", '').replace("'", '')
+		compiled.write(f"[0x{counter}] {opcode}{r1}{rd}{imm} => 0x{hexinst} # {str(linea)}\n")
 
-def compile(type, r1, r2, imm, counter, opcode, fileCompile):
-	if type == "Operation":
-		if registers.get(r1) == None:
-			print(f"Register in line {counter} it's wrong: {r1}")
-			exit(0)
-
-		elif registers.get(r2) == None:
-			print(f"Register in line {counter} it's wrong: {r2}")
-			exit(0)
-
-		r1 = registers.get(r1)
-		r2 = registers.get(r2)
-
-		# print
-		opcode = bin(opcode).replace('0b', '')
-		opcode = opcode.zfill(4)
-
-		r1 = bin(r1).replace('0b', '')
-		r1 = r1.zfill(2)
-		r2 = bin(r2).replace('0b', '')
-		r2 = r2.zfill(2)
-		counter = bin(counter).replace('0b', '')
-		counter = counter.zfill(8)
-		printed = (opcode + " " + r1 + r2)
+def compile(code):
+	counter = 0
+	compiled = open(f"compiled.s", "w")
+	while True:
+		linea = code.readline().split()
+		if not linea:
+			break
 		
-		
-		fileCompile.write(f"{counter} {printed}\n")
-		
-	elif type == "Data":
-		if registers.get(r1) == None:
-			print(f"Register in line {counter} it's wrong: {r1}")
-			exit(0)
+		linea = linea
+		printcode(linea, counter, compiled)
+		counter += 2
 
-		elif registers.get(r2) == None:
-			print(f"Register in line {counter} it's wrong: {r2}")
-			exit(0)
-
-	
-	elif type == "Operation-Data":
-		if registers.get(r1) == None:
-			print(f"Register in line {counter} it's wrong: {r1}")
-			exit(0)
-
-		r1 = registers.get(r1)
-		opcode = bin(opcode).replace('0b', '')
-		opcode = opcode.zfill(4)
-
-		r1 = bin(r1).replace('0b', '')
-		r1 = r1.zfill(2)
-
-		imm = bin(int (imm)).replace('0b', '')
-		imm = imm.zfill(2)
-		counter = bin(counter).replace('0b', '')
-		counter = counter.zfill(8)
-
-		printed = (opcode + " " + r1 + imm)
-		fileCompile.write(f"{counter} {printed}\n")
-
-	
-	elif type == -1:
-		counter = bin(counter).replace('0b', '')
-		counter = counter.zfill(8)
-		fileCompile.write(f"{counter} 0000 0000\n")
-
+	compiled.close()
 
 def __main__():
-	os.system("cls")
-	option = int(input("\t\tCOMPILER\nEnter mode\n1. Show code in binary/hexadecimal \n2. Compile\nOption: "))
-	# Enter file name
-	os.system("cls")
-	file = input("Enter name's file: ")
-	os.system("cls")
+	system("color F")
+	system("cls")
+	nombre = input("Ingrese nombre del archivo: ")
+	
 	try:
-		asmcode = open(file, "r")
-		
-	# Error
+		code = open(nombre, "r")
 	except:
-		print("No file found");
-		os.system("pause")
-		os.system("cls")
-		__main__()
-	if option == 1:
-		i = 0
-		#code iterator
-		while (True):
-			# catch instruction
-			linea = asmcode.readline()
-			linea = linea.upper()
-			linea = linea.split()
-
-			if not(str(linea).find(":") == -1):
-				continue
-		
-			i += 1;
-			
-			if not linea:
-				break
-			
-			opcode = opcodes.get(linea[0])
-			print("\t\tINSTRUCTION\n")
-			print(f"{i}: {linea}")
-			
-			typeInst = -1
-			reg1 = ""
-			reg2 = ""
-			imm = ""
-
-
-			if opcode == 0:
-				# binaryInst = "0x00"
-				typeInst = -1
-				reg1 = "A"
-				reg2 = "A"
-
-			elif (opcode >= 1 and opcode <= 4) or (opcode >= 8 and opcode <= 9) or opcode == 11:
-				typeInst = "Operation"
-				reg1 = linea[1].replace(',', '')
-				reg2 = linea[2].replace(',', '')
-
-			elif opcode == 10:
-				typeInst = "Operation-Data"
-				reg1 = linea[1].replace(',', '')
-				imm = linea[2]
-				
-				if int(imm) > 3:
-					print(f"Syntax error in line: {i} const number is greater that 3, you put: {imm}")
-					exit(0)
-				
-
-			elif opcode == None:
-				print(f"Syntax error in line: {i} you put: {linea[0]}")
-				exit(0)
-
-			transform(typeInst, reg1, reg2, imm, i, opcode)	
-		os.system("pause")
-		os.system("cls")
-	
-	elif option == 2:
-		os.system("cls")
-		comp = open(file.replace(".s", ".txt"), 'w')
-		i = 0
-		#code iterator
-		while (True):
-			# catch instruction
-			linea = asmcode.readline()
-			linea = linea.upper()
-			linea = linea.split()
-
-			if not(str(linea).find(":") == -1):
-				continue
-			
-			i += 1;
-			
-			if not linea:
-				break
-			
-			opcode = opcodes.get(linea[0])
-			typeInst = -1
-			reg1 = ""
-			reg2 = ""
-			imm = ""
-
-
-			if opcode == 0:
-				# binaryInst = "0x00"
-				typeInst = -1
-				reg1 = "A"
-				reg2 = "A"
-
-			elif (opcode >= 1 and opcode <= 4) or (opcode >= 8 and opcode <= 9) or opcode == 11:
-				typeInst = "Operation"
-				reg1 = linea[1].replace(',', '')
-				reg2 = linea[2].replace(',', '')
-
-			elif opcode == 10:
-				typeInst = "Operation-Data"
-				reg1 = linea[1].replace(',', '')
-				imm = linea[2]
-				
-				if int(imm) > 3:
-					print(f"Syntax error in line: {i} const number is greater that 3, you put: {imm}")
-					exit(0)
-				
-
-			elif opcode == None:
-				print(f"Syntax error in line: {i} you put: {linea[0]}")
-				exit(0)
-
-			compile(typeInst, reg1, reg2, imm, i, opcode, comp)	
-		print("Compiled successfully completed!")
-		os.system("pause")
-		os.system("cls")
-	
-	else:
-		print("Enter valid option")
-		os.system("pause")
-		os.system("cls")
+		system("cls")
+		system("color 4")
+		print("Error! Ingrese nombre / direccion del archivo")
+		system("pause")
+		system("cls")
 		__main__()
 
+	compile(code)
+
+	code.close()
 
 __main__()

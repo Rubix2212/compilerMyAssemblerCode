@@ -1,45 +1,74 @@
+Instrucciones {
+	0x0: tipo O -> instruccion las cuales generan una operacion aritmetica => OR R3, R2, R1
+	0x1: LD -> carga en un registro una posicion de memoria => 
+	0x2: SD -> guarda en la memoria el valor de un registro => 
+	0x3: RET -> retorna a la direccion de memoria antes de saltar => RET
+	0x4: ADDC -> suma un registro y una constante y lo guarda en un registro => ADDC R4, R4, 1
+	0x5: JMP -> salto incondicional => JMP 1000 # salta a la linea 1000
+	0x6: JEQ -> compara dos registros y si son iguales salta => JEQ R1, ZERO, 23 # salta a la linea 23
+	0x7: JNE -> no son iguales => JNE R2, R5, 12
+	0x8: JLT -> menor que
+	0x9: JGT -> mayor que
+	0xA: JAL -> salta incondicionalmente y guarda la posicion del PC => JAL 12
+	0xB: EXIT -> termina el programa
+}
+
 Set de instrucciones {
-	Tipo o (Operation) {
+	TIPO O (operation) {
+		opcode = 4 bits 
+		r1 = 3 bits 
+		r2 = 3 bits 
+		rd = 3 bits 
+		funct = 3 bits 
+	}
+
+	Tipo C (const) {
+		opcode = 4 bits 
+		r1 = 3 bits 
+		rd = 3 bits 
+		const = 6 bits 
+	}
+
+	Tipo M (memory) {
 		opcode = 4 bits
-		r1 = 2 bits
-		r2 = 2 bits
+		r1 = 3 bits 
+		address = 9 bits
+
+		r1 = memory[address]
+	}
+
+	Tipo J (jump) {
+		opcode = 4 bits
+		address = 12 bits 
 	}
 }
 
-Registros {
-	A = 00
-	B = 01
-	C = 10
-	D = 11
+Regs {
+	000: ZERO || R0
+	001: R1
+	010: R2
+	011: R3
+	100: R4
+	101: R5
+	110: R6
+	111: R7
 }
 
-Instrucciones {
-  0x00 =>  NOP  -> nada
-	0x0  =>  ADD  -> sumas dos registros y los concatena -> ADD A, B # a += b
-	0x1  =>  SUB  -> resta dos registros y los concatena -> SUB A, C # a -= c
-	0x2  =>  AND  -> hace un and a dos registros y los concatena -> AND A, C # a &= c
-	0x3  =>  OR   -> hace un or a dos registros y los concatena -> AND A, C # a |= c
-	0x4  =>  GOTO -> salta incondicionalmente -> GOTO 11 (no puede sobrepasar las 15 lineas)
-	0x5  =>  CMP  -> compara dos registros (se usa para los jumps) -> CMP A, B # guarda el resultado en un registro llamado T (Temporary)
-	0x6  =>  JEQ  -> si CMP fue 00 (iguales) salta -> JEQ 11 (no puede sobrepasar las 15 lineas)
-	0x7  =>  JNE  -> si CMP fue 01 (no iguales) salta -> JNE 6 (no puede sobrepasar las 15 lineas)
-	0x8  =>  JLT  -> si CMP fue 10 (menor que) salta -> JLT 0xC (no puede sobrepasar las 15 lineas)
-	0x9  =>  JGT  -> si CMP fue 11 (mayor que) salta -> JGT 0xF (no puede sobrepasar las 15 lineas
-	0xA  =>  RET  -> retorna a la direccion antes de saltar -> RET # la direccion se guarda en un registro llamado TJA (TemporaryJumpAddress) 
-	0xB  =>  SD   -> guarda en la memoria el valor de un registro -> SD A, B # memory[A] = B
-	0xC  =>  LD   -> carga en un registro el valor de la memoria -> LD A, D # A = memory[D]
-	0xD  =>  LI   -> carga en un registro un valor -> LI A, 2 (no puede sobrepasar 4)
-	0xE	 =>  MV   -> copia el valor de un registro a otro -> MV A, B # A = B
-	0xF  =>  
+Funct {
+	000: add
+	001: sub
+	010: mul
+	011: div
+	100: and
+	101: or
+	110: xor
+	111: nand
 }
 
-JUMP CONTROL {
-	000: no-jump,
-	001: JEQ,
-	010: JNE,
-	011: JLT,
-	100: JGL,
-	101: RET,
-	110: CMP,
-	111: no-jump
+JumpFunct {
+	00: JEQ
+	01: JNE
+	10: JLT
+	11: JGT
 }
+
