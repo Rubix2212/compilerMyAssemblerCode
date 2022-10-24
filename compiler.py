@@ -70,7 +70,7 @@ def printcode(linea, counter, compiled):
 		linea = str(linea).replace("[", '').replace("]", '').replace(",", '').replace("'", '')	
 		compiled.write(f"[0x{counter}] {opcode}{address} => 0x{hexinst} # {str(linea)}\n")
 	
-	elif opcode == 3:
+	elif opcode == 3 or opcode == 11:
 		opcode = str(bin(opcode)).replace("0b", '').zfill(4)
 		rem = "000000000000"
 		hexinst = str(hex(int(opcode + rem, 2))).replace("0x", '').zfill(4)
