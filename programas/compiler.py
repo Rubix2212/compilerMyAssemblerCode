@@ -91,13 +91,16 @@ def printcode(linea, counter, compiled):
 		linea = str(linea).replace("[", '').replace("]", '').replace(",", '').replace("'", '')
 		compiled.write(f"[0x{counter}] {opcode}{r1}{rd}{imm} => 0x{hexinst} # {str(linea)}\n")
 
-def compile(code):
+def compile(code, nombre):
 	counter = 0
-	compiled = open(f"compiled.s", "w")
+	nombre = nombre.replace(".asm", '').replace(".s", '')
+	compiled = open(f"{nombre}.txt", "w")
 	while True:
 		linea = code.readline().split()
 		if not linea:
 			break
+		if linea[0] == "#":
+			continue
 		
 		linea = linea
 		printcode(linea, counter, compiled)
@@ -120,7 +123,7 @@ def __main__():
 		system("cls")
 		__main__()
 
-	compile(code)
+	compile(code, nombre)
 
 	code.close()
 
