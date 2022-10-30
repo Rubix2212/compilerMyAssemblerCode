@@ -16,6 +16,5 @@ int main() {
 	printf("Ingrese numero: ");
 	scanf("%d", &r1);
 	
-
 	printf("Fib: %d", fib(r1));
 }

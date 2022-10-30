@@ -1,0 +1,15 @@
+0x000: NOP    ->  suma 0 + 0 y lo guarda en el registro 0, osea no hace nada
+0x0:   tipo O ->  instruccion las cuales generan una operacion aritmetica => OR R3, R2, R1
+0x1:   LD     ->  carga en un registro una posicion de memoria => 
+0x2:   SD     ->  guarda en la memoria el valor de un registro => 
+0x3:   RET    ->  retorna a la direccion de memoria antes de saltar => RET
+0x4:   ADDC   ->  suma un registro y una constante y lo guarda en un registro => ADDC R4, R4, 1
+0x5:   JMP    ->  salto incondicional => JMP 1000 # salta a la linea 1000
+0x6:   JEQ    ->  compara dos registros y si son iguales salta => JEQ R1, ZERO, 23 # salta a la linea 23
+0x7:   JNE    ->  no son iguales => JNE R2, R5, 12
+0x8:   JLT    ->  menor que
+0x9:   JGT    ->  mayor que
+0xA:   JAL    ->  salta incondicionalmente y guarda la posicion del PC => JAL 12
+0xB:   EXIT   ->  termina el programa
+0xC:   
+

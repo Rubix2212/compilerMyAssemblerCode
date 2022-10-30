@@ -1,0 +1,29 @@
+TIPO O (operation) {
+	opcode = 4 bits 
+	r1 = 5 bits 
+	r2 = 5 bits 
+	rd = 5 bits 
+	funct = 5 bits 
+}
+
+Tipo C (const) {
+	opcode = 4 bits 
+	r1 = 5 bits 
+	rd = 5 bits 
+	carry = 1 bit
+	sign = 1 bit
+	const = 8 bits
+}
+
+Tipo J (jump) {
+	opcode = 4 bits
+	r1 = 5 bits
+	r2 = 5 bits
+	address = 10 bits
+}
+
+Tipo D (Data) {
+	opcode = 4 bits
+	r1 = 5 bits
+	addressMem = 15 bits
+}

@@ -1,0 +1,18 @@
+funct {
+	000: add
+	001: sub
+	010: mul
+	011: div
+	100: and
+	101: or
+	110: xor
+	111: nand
+}
+
+JumpFunct {
+	00: JEQ
+	01: JNE
+	10: JLT
+	11: JGT
+}
+
