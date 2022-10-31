@@ -85,6 +85,7 @@ def compile(file: TextIOWrapper, compiled_file: TextIOWrapper):
 			address = handleAddress(pc_at, pc_tag, linea[1].replace(',', '').lower())
 			address = bin(int(address, 16)).replace('0b', '').zfill(10)
 			inst_hex = hex(int(opcode + "0000000000" + address, 2)).replace('0x', '')
+			PC = hex(counter).replace('0x','').zfill(3)
 			compiled_file.write(f"[0x{PC}] 0x" + inst_hex + "    			# " + str(linea) + "\n")
 		
 		counter += 3 
